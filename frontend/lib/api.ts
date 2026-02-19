@@ -34,10 +34,28 @@ export interface Entity {
   sentiment_context: string;
 }
 
+export interface ReputationSignal {
+  signal: string;
+  evidence: string;
+}
+
 export interface ReputationSignals {
-  positive: string[];
-  negative: string[];
-  neutral: string[];
+  positive: ReputationSignal[];
+  negative: ReputationSignal[];
+  neutral: ReputationSignal[];
+}
+
+export interface Contradiction {
+  type: string;
+  description: string;
+  evidence: Record<string, string>;  // e.g. { positive_frame: "...", negative_frame: "..." }
+}
+
+export interface Claim {
+  claim: string;
+  evidence: string;
+  claim_type: "factual" | "opinion" | "projection";
+  significance: "low" | "medium" | "high";
 }
 
 // Required fields
@@ -52,8 +70,8 @@ export interface AnalysisResult {
   // Optional extensions — present only if candidate implemented them
   sentiment_breakdown?: Record<string, number>;
   mention_analysis?: Record<string, unknown>;
-  contradictions?: string[];
-  claims?: string[];
+  contradictions?: Contradiction[];
+  claims?: Claim[];
   source_credibility?: Record<string, unknown>;
 }
 

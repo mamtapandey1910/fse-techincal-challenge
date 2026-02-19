@@ -8,18 +8,18 @@ interface Props {
 
 // TODO: implement the results display
 //
-// `result` is whatever your POST /analyse/{id} endpoint returns.
-// Since you define the response shape on the backend, you decide how to display it here.
+// `result` is typed as AnalysisResult (see frontend/lib/api.ts).
+// The required fields are always present. Optional fields may be undefined.
 //
-// Suggestions:
-// - Sentiment score with a visual indicator (colour, badge, progress bar)
-// - Reputation signals grouped as positive / negative / neutral
-// - Themes as badges
-// - Key entities mentioned in the article
-// - A reasoning or summary section
+// Required:  sentiment, entities, themes, reputation_signals,
+//            significance_score, reasoning
+// Optional:  sentiment_breakdown, mention_analysis, contradictions,
+//            claims, source_credibility
 //
 // shadcn components available: Card, Badge, Button — import from @/components/ui/*
-// Raw result is rendered below so you can see the shape while building.
+//
+// The raw JSON below is a fallback so you can see the shape while building.
+// Replace it with your implementation.
 
 export default function AnalysisResult({ result }: Props) {
   return (
