@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import AnalysisResult from "@/components/AnalysisResult";
+import AnalysisResultComponent from "@/components/AnalysisResult";
 
 export default function AnalysisForm() {
   const [subjects, setSubjects] = useState<ArticleSummary[]>([]);
@@ -32,7 +32,9 @@ export default function AnalysisForm() {
   useEffect(() => {
     getArticles()
       .then(setSubjects)
-      .catch(() => toast.error("Failed to load subjects. Is the backend running?"));
+      .catch(() =>
+        toast.error("Failed to load subjects. Is the backend running?"),
+      );
   }, []);
 
   async function handleSelect(id: string) {
@@ -60,15 +62,22 @@ export default function AnalysisForm() {
       setResult(data);
       toast.success("Analysis complete", { id: toastId });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Analysis failed.", { id: toastId });
+      toast.error(err instanceof Error ? err.message : "Analysis failed.", {
+        id: toastId,
+      });
     } finally {
       setAnalysing(false);
     }
   }
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); handleAnalyse(); }} className="space-y-8">
-
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleAnalyse();
+      }}
+      className="space-y-8"
+    >
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <Select onValueChange={handleSelect} value={selectedId}>
@@ -97,7 +106,9 @@ export default function AnalysisForm() {
               <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               Analysing
             </span>
-          ) : "Analyse"}
+          ) : (
+            "Analyse"
+          )}
         </Button>
       </div>
 
@@ -110,7 +121,11 @@ export default function AnalysisForm() {
           <div className="h-3 bg-slate-100 rounded w-32 mt-1" />
           <div className="space-y-2 pt-4">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-3 bg-slate-100 rounded" style={{ width: `${85 + Math.random() * 15}%` }} />
+              <div
+                key={i}
+                className="h-3 bg-slate-100 rounded"
+                style={{ width: `${85 + Math.random() * 15}%` }}
+              />
             ))}
           </div>
         </div>
@@ -145,7 +160,9 @@ export default function AnalysisForm() {
             <span className="text-slate-200 mx-1">·</span>
             <span>{article.published_date}</span>
             <span className="text-slate-200 mx-1">·</span>
-            <span>{article.content.split(" ").length.toLocaleString()} words</span>
+            <span>
+              {article.content.split(" ").length.toLocaleString()} words
+            </span>
           </div>
 
           {/* Body */}
@@ -165,7 +182,7 @@ export default function AnalysisForm() {
       {/* Analysis result — candidate implements AnalysisResult.tsx */}
       {result && (
         <div className="pt-6 border-t border-slate-200">
-          <AnalysisResult result={result} />
+          <AnalysisResultComponent result={result} />
         </div>
       )}
     </form>
