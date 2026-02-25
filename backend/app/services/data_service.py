@@ -16,3 +16,13 @@ def get_article_by_id(article_id: str) -> dict:
     if not article:
         raise HTTPException(status_code=404, detail=f"Article '{article_id}' not found")
     return article
+
+def fix_schema_dict_properties(obj):
+    if isinstance(obj, dict):
+        if obj.get("type") == "object" and "properties" in obj:
+            obj["additionalProperties"] = False
+        for value in obj.values():
+            fix_schema_dict_properties(value)
+    elif isinstance(obj, list):
+        for item in obj:
+            fix_schema_dict_properties(item)

@@ -8,8 +8,9 @@ from app.models.responses import (
     ReputationSignal,
 )
 
-from app.services.data_service import get_article_by_id, load_articles
+from app.services.data_service import get_article_by_id, load_articles, fix_schema_dict_properties
 from openai import OpenAI
+import json
 from app.config.config import settings
 
 router = APIRouter()
@@ -74,57 +75,27 @@ async def analyse_article(article_id: str) -> AnalysisResponse:
         raise HTTPException(status_code=500, detail="APIKey not found")
 
     gptClient = OpenAI(api_key=settings.openai_api_key)
+    
+    schema = AnalysisResponse.model_json_schema()
+    
+    fix_schema_dict_properties(schema)
 
-    response = gptClient.chat.completions.create(
-        model = settings.openai_model,
-        messages =  [{'role': 'user', "content": f"Analyse this article: {article.get("content", "content")}"}],
-        temperature=0.0
-    )
-
-    resp =  response.choices[0].message.content
-    print(resp)
-
-
-    return AnalysisResponse(
-        sentiment= Sentiment(label="positive", score=0.82, confidence=0.90),
-        entities=[
-            Entity(
-                name="Acme Corp",
-                type="company",
-                relationship="primary subject",
-                sentiment_context="Praised for innovation and growth"
-            ),
-          Entity(
-                name="John Doe",
-                type="person",
-                relationship="CEO",
-                sentiment_context="Described as visionary leader"
-            )
+    response = gptClient.beta.chat.completions.parse(
+        model=settings.openai_model,
+        messages=[
+            {"role": "system", "content": "You are an expert reputation analyst engine. Given an article, produce a JSON object that exactly matches the response_format"},
+            {"role": "user", "content": f"Produce the JSON now for the article {article}"}
         ],
-        themes=[
-            "financial growth",
-            "leadership strategy",
-            "market expansion"
-        ],
-        reputation_signals= ReputationSignals(
-            positive=[
-                ReputationSignal(
-                    signal="strong financial performance",
-                    evidence="The article highlights record quarterly earnings"
-                ),
-                ReputationSignal(
-                    signal="effective market strategy",
-                    evidence="Strategic expansion mentioned throughout"
-                )
-            ],
-            negative=[
-                ReputationSignal(
-                    signal="governance concerns",
-                    evidence="Some analysts warn of potential risks"
-                )
-            ],
-            neutral=[]
-        ),
-        significance_score=0.78,
-        reasoning="The article highlights strong quarterly earnings and strategic expansion, contributing positively to overall reputation."
+        temperature=0.0,
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "AnalysisResponse",
+                "schema": schema
+            }
+        }
     )
+    content = response.choices[0].message.content
+    resp = AnalysisResponse(**json.loads(content))
+    
+    return resp
