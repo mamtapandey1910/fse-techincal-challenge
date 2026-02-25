@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from app.models.responses import (
     AnalysisResponse,
@@ -9,6 +9,8 @@ from app.models.responses import (
 )
 
 from app.services.data_service import get_article_by_id, load_articles
+from openai import OpenAI
+from app.config.config import settings
 
 router = APIRouter()
 
@@ -67,6 +69,21 @@ async def analyse_article(article_id: str) -> AnalysisResponse:
     # source_credibility   — dict, reliability and bias assessment of the publication
 
     # raise NotImplementedError  # remove this line when you implement the function
+
+    if not settings.openai_api_key:
+        raise HTTPException(status_code=500, detail="APIKey not found")
+
+    gptClient = OpenAI(api_key=settings.openai_api_key)
+
+    response = gptClient.chat.completions.create(
+        model = settings.openai_model,
+        messages =  [{'role': 'user', "content": f"Analyse this article: {article.get("content", "content")}"}],
+        temperature=0.0
+    )
+
+    resp =  response.choices[0].message.content
+    print(resp)
+
 
     return AnalysisResponse(
         sentiment= Sentiment(label="positive", score=0.82, confidence=0.90),
