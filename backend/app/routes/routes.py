@@ -1,6 +1,13 @@
 from fastapi import APIRouter
 
-from app.models.responses import AnalysisResponse
+from app.models.responses import (
+    AnalysisResponse,
+    Sentiment,
+    Entity,
+    ReputationSignals,
+    ReputationSignal,
+)
+
 from app.services.data_service import get_article_by_id, load_articles
 
 router = APIRouter()
@@ -59,4 +66,48 @@ async def analyse_article(article_id: str) -> AnalysisResponse:
     # claims               — list of Claim: claim, evidence (quote), claim_type, significance
     # source_credibility   — dict, reliability and bias assessment of the publication
 
-    raise NotImplementedError  # remove this line when you implement the function
+    # raise NotImplementedError  # remove this line when you implement the function
+
+    return AnalysisResponse(
+        sentiment= Sentiment(label="positive", score=0.82, confidence=0.90),
+        entities=[
+            Entity(
+                name="Acme Corp",
+                type="company",
+                relationship="primary subject",
+                sentiment_context="Praised for innovation and growth"
+            ),
+          Entity(
+                name="John Doe",
+                type="person",
+                relationship="CEO",
+                sentiment_context="Described as visionary leader"
+            )
+        ],
+        themes=[
+            "financial growth",
+            "leadership strategy",
+            "market expansion"
+        ],
+        reputation_signals= ReputationSignals(
+            positive=[
+                ReputationSignal(
+                    signal="strong financial performance",
+                    evidence="The article highlights record quarterly earnings"
+                ),
+                ReputationSignal(
+                    signal="effective market strategy",
+                    evidence="Strategic expansion mentioned throughout"
+                )
+            ],
+            negative=[
+                ReputationSignal(
+                    signal="governance concerns",
+                    evidence="Some analysts warn of potential risks"
+                )
+            ],
+            neutral=[]
+        ),
+        significance_score=0.78,
+        reasoning="The article highlights strong quarterly earnings and strategic expansion, contributing positively to overall reputation."
+    )
