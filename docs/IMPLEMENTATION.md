@@ -24,7 +24,7 @@ OpenAI can be timeout, can hit rate limit, can give malformed JSON or can miss s
 
 _What did you choose to display and how? What did you leave out?_
 
-I prioritised displaying the sentiment, risk and evidance, as these are the most important fields for analysis. Used chart to display quick analysis. I have left some optional fields such as sentiment_breakdown, mention_analysis, contradictions.
+I prioritised modularity, correct output from the llm, better user experience and error handling along with , displaying the sentiment, risk and evidance, as these are the most important fields for analysis. Used chart to display quick analysis. I have left some optional fields such as sentiment_breakdown, mention_analysis, contradictions.
 
 **4. What would you add with more time?**
 
