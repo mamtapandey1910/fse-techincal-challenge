@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from openai import (
     AsyncOpenAI,
     APIConnectionError,
+    APIResponseValidationError,
     APITimeoutError,
     AuthenticationError,
     BadRequestError,
@@ -19,7 +20,7 @@ _client = AsyncOpenAI(api_key=settings.openai_api_key)
 
 _RETRYABLE = (RateLimitError, APIConnectionError, APITimeoutError)
 _MAX_RETRIES = 3
-_BASE_DELAY = 1.0
+_BASE_DELAY = 1
 
 
 async def analyse_with_retry(article: dict) -> CoreAnalysisResponse:
@@ -63,6 +64,9 @@ async def analyse_with_retry(article: dict) -> CoreAnalysisResponse:
             if attempt == _MAX_RETRIES:
                 raise HTTPException(status_code=429, detail="OpenAI rate limit exceeded — try again later.")
             await asyncio.sleep(_BASE_DELAY * (2 ** (attempt - 1)))
+
+        except APIResponseValidationError as exc:
+            raise HTTPException(status_code=500, detail=f"OpenAI returned malformed JSON: {exc}")
 
         except (APIConnectionError, APITimeoutError):
             if attempt == _MAX_RETRIES:
