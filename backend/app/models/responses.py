@@ -1,14 +1,15 @@
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 # ---------------------------------------------------------------------------
-# Core models — required
+# Core models — required (strict, used as OpenAI structured output schema)
 # ---------------------------------------------------------------------------
 
 
 class Sentiment(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     label: Literal["positive", "negative", "neutral", "mixed"]
     score: float = Field(
         ...,
@@ -22,6 +23,7 @@ class Sentiment(BaseModel):
 
 
 class Entity(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     name: str
     type: Literal["person", "company", "organisation", "location", "other"]
     relationship: str = Field(
@@ -32,6 +34,7 @@ class Entity(BaseModel):
 
 
 class ReputationSignal(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     signal: str = Field(..., description="The reputation signal, e.g. 'rigorous research approach'")
     evidence: str = Field(
         ..., description="Direct quote or paraphrase from the article that supports this signal"
@@ -39,6 +42,7 @@ class ReputationSignal(BaseModel):
 
 
 class ReputationSignals(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     positive: list[ReputationSignal] = Field(default_factory=list)
     negative: list[ReputationSignal] = Field(default_factory=list)
     neutral: list[ReputationSignal] = Field(default_factory=list)
@@ -74,8 +78,10 @@ class Claim(BaseModel):
 # ---------------------------------------------------------------------------
 
 
-class AnalysisResponse(BaseModel):
-    # --- Required ---
+class CoreAnalysisResponse(BaseModel):
+    """Strict schema used as the OpenAI structured output format — required fields only."""
+
+    model_config = ConfigDict(extra="forbid")
     sentiment: Sentiment
     entities: list[Entity] = Field(..., description="Key entities mentioned in the article")
     themes: list[str] = Field(
@@ -89,6 +95,10 @@ class AnalysisResponse(BaseModel):
         description="How significant this article is for the subject's reputation, 0 to 1",
     )
     reasoning: str = Field(..., description="Brief explanation of the overall analysis")
+
+
+class AnalysisResponse(CoreAnalysisResponse):
+    """Full API response — extends CoreAnalysisResponse with optional extensions (no strict checking)."""
 
     # --- Optional extensions ---
     sentiment_breakdown: dict[str, float] | None = Field(

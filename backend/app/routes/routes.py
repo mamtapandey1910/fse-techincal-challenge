@@ -1,16 +1,9 @@
 from fastapi import APIRouter, HTTPException
 
-from app.models.responses import (
-    AnalysisResponse,
-    Sentiment,
-    Entity,
-    ReputationSignals,
-    ReputationSignal,
-)
+from app.models.responses import AnalysisResponse, CoreAnalysisResponse
 
-from app.services.data_service import get_article_by_id, load_articles, fix_schema_dict_properties
-from openai import OpenAI
-import json
+from app.services.data_service import get_article_by_id, load_articles
+from openai import AsyncOpenAI
 from app.config.config import settings
 
 router = APIRouter()
@@ -74,28 +67,16 @@ async def analyse_article(article_id: str) -> AnalysisResponse:
     if not settings.openai_api_key:
         raise HTTPException(status_code=500, detail="APIKey not found")
 
-    gptClient = OpenAI(api_key=settings.openai_api_key)
-    
-    schema = AnalysisResponse.model_json_schema()
-    
-    fix_schema_dict_properties(schema)
+    gptClient = AsyncOpenAI(api_key=settings.openai_api_key)
 
-    response = gptClient.beta.chat.completions.parse(
+    resp = await gptClient.responses.parse(
         model=settings.openai_model,
-        messages=[
-            {"role": "system", "content": "You are an expert reputation analyst engine. Given an article, produce a JSON object that exactly matches the response_format"},
+        input=[
+            {"role": "system", "content": "You are an expert reputation analyst engine. Given an article, produce a JSON object that exactly matches the AnalysisResponse"},
             {"role": "user", "content": f"Produce the JSON now for the article {article}"}
         ],
         temperature=0.0,
-        response_format={
-            "type": "json_schema",
-            "json_schema": {
-                "name": "AnalysisResponse",
-                "schema": schema
-            }
-        }
+        text_format=CoreAnalysisResponse
     )
-    content = response.choices[0].message.content
-    resp = AnalysisResponse(**json.loads(content))
-    
-    return resp
+
+    return resp.output_parsed
