@@ -1,9 +1,8 @@
 from fastapi import APIRouter, HTTPException
 
-from app.models.responses import AnalysisResponse, CoreAnalysisResponse
-
+from app.models.responses import AnalysisResponse
 from app.services.data_service import get_article_by_id, load_articles
-from openai import AsyncOpenAI
+from app.services.openai_service import analyse_with_retry
 from app.config.config import settings
 
 router = APIRouter()
@@ -30,9 +29,9 @@ async def get_article(article_id: str) -> dict:
 
 @router.post("/analyse/{article_id}", response_model=AnalysisResponse)
 async def analyse_article(article_id: str) -> AnalysisResponse:
-    article = get_article_by_id(article_id)
+    article = get_article_by_id(article_id) 
 
-    # TODO: implement your analysis here
+       # TODO: implement your analysis here
     #
     # `article` is a dict with:
     #   id, subject_name, subject_type, title, source, author, published_date, content
@@ -62,21 +61,10 @@ async def analyse_article(article_id: str) -> AnalysisResponse:
     # claims               — list of Claim: claim, evidence (quote), claim_type, significance
     # source_credibility   — dict, reliability and bias assessment of the publication
 
-    # raise NotImplementedError  # remove this line when you implement the function
 
     if not settings.openai_api_key:
         raise HTTPException(status_code=500, detail="APIKey not found")
 
-    gptClient = AsyncOpenAI(api_key=settings.openai_api_key)
+    result = await analyse_with_retry(article)
 
-    resp = await gptClient.responses.parse(
-        model=settings.openai_model,
-        input=[
-            {"role": "system", "content": "You are an expert reputation analyst engine. Given an article, produce a JSON object that exactly matches the AnalysisResponse"},
-            {"role": "user", "content": f"Produce the JSON now for the article {article}"}
-        ],
-        temperature=0.0,
-        text_format=CoreAnalysisResponse
-    )
-
-    return resp.output_parsed
+    return result
