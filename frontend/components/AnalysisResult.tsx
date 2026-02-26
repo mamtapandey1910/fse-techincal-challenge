@@ -19,48 +19,65 @@ export default function AnalysisResult({result}: Props) {
       <h2 className="text-lg font-semibold">Analysis Result</h2>
 
       {/* Signal breakdown pie chart */}
-      <SignalBreakdownCard reputation_signals={result.reputation_signals} />
+      {result.reputation_signals && (
+        <SignalBreakdownCard reputation_signals={result.reputation_signals} />
+      )}
 
-      <div className="flex items-center gap-6">
-        <div>
-          <div className="text-2xl font-bold">
-            {Math.round(result.significance_score * 100)}%
+      {result.significance_score != null && result.sentiment && (
+        <div className="flex items-center gap-6">
+          <div>
+            <div className="text-2xl font-bold">
+              {Math.round(result.significance_score * 100)}%
+            </div>
+            <div className="text-xs text-muted-foreground">Significance</div>
           </div>
-          <div className="text-xs text-muted-foreground">Significance</div>
+          <div className="flex items-center gap-2">
+            <Badge
+              variant={
+                result.sentiment.label === "positive"
+                  ? "default"
+                  : result.sentiment.label === "negative"
+                    ? "destructive"
+                    : "secondary"
+              }
+              className={
+                result.sentiment.label === "positive"
+                  ? "bg-green-600 text-white"
+                  : undefined
+              }
+            >
+              {result.sentiment.label}
+            </Badge>
+            <div className="text-sm text-muted-foreground">Sentiment</div>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge
-            variant={
-              result.sentiment.label === "positive"
-                ? "default"
-                : result.sentiment.label === "negative"
-                  ? "destructive"
-                  : "secondary"
-            }
-            className={
-              result.sentiment.label === "positive"
-                ? "bg-green-600 text-white"
-                : undefined
-            }
-          >
-            {result.sentiment.label}
-          </Badge>
-          <div className="text-sm text-muted-foreground">Sentiment</div>
-        </div>
-      </div>
+      )}
 
-      <EmotionCard
-        sentiment={result.sentiment}
-        sentiment_breakdown={result.sentiment_breakdown}
-      />
-      <RiskCard signals={result.reputation_signals.negative} />
+      {result.sentiment && (
+        <EmotionCard
+          sentiment={result.sentiment}
+          sentiment_breakdown={result.sentiment_breakdown}
+        />
+      )}
+      {result.reputation_signals?.negative && (
+        <RiskCard signals={result.reputation_signals.negative} />
+      )}
 
-      <EvidenceCard
-        positiveSignals={result.reputation_signals.positive}
-        claims={result.claims}
-      />
-      <ContextCard entities={result.entities} />
-      <DetailCard themes={result.themes} reasoning={result.reasoning} />
+      {result.reputation_signals?.positive && (
+        <EvidenceCard
+          positiveSignals={result.reputation_signals.positive}
+          claims={result.claims}
+        />
+      )}
+      {result.entities?.length > 0 && (
+        <ContextCard entities={result.entities} />
+      )}
+      {(result.themes || result.reasoning) && (
+        <DetailCard
+          themes={result.themes ?? []}
+          reasoning={result.reasoning ?? ""}
+        />
+      )}
     </div>
   );
 }
