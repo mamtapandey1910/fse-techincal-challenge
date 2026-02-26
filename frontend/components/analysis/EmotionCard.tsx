@@ -54,28 +54,28 @@ export function EmotionCard({sentiment, sentiment_breakdown}: Props) {
                 {sentiment.score.toFixed(2)}
               </span>
             </div>
-            {/* Fixed spectrum: red | neutral | green, with a thumb marker */}
-            <div
-              className="relative w-full h-3 rounded-full overflow-visible"
-              style={{
-                background:
-                  "linear-gradient(to right, #ef4444 0%, #f59e0b 50%, #22c55e 100%)",
-              }}
-            >
+            {/* Fixed spectrum: grey bar with colored thumb */}
+            <div className="relative w-full h-3 rounded-full overflow-visible bg-gray-200 dark:bg-gray-700">
               {/* thumb */}
               <div
-                className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 border-white bg-white shadow"
+                className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow ${
+                  sentiment.score > 0.1
+                    ? "bg-green-500"
+                    : sentiment.score < -0.1
+                      ? "bg-rose-500"
+                      : "bg-gray-400"
+                }`}
                 style={{
-                  left: `calc(${((sentiment.score + 1) / 2) * 100}% - 6px)`,
+                  left: `calc(${((sentiment.score + 1) / 2) * 100}% - 8px)`,
                 }}
               />
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-red-500 font-semibold">-1 Negative</span>
-              <span className="text-gray-700 dark:text-gray-300 font-semibold">
+              <span className="text-rose-400 font-medium">-1 Negative</span>
+              <span className="text-gray-500 dark:text-gray-400 font-medium">
                 0 Neutral
               </span>
-              <span className="text-green-600 font-semibold">+1 Positive</span>
+              <span className="text-green-400 font-medium">+1 Positive</span>
             </div>
           </div>
 
@@ -86,8 +86,8 @@ export function EmotionCard({sentiment, sentiment_breakdown}: Props) {
                 Confidence
               </span>
               <span className="text-gray-900 dark:text-white">
-                {Math.round(sentiment.confidence * 100)} / 100 (
-                {Math.round(sentiment.confidence * 100)}%)
+                {Math.round(sentiment.confidence * 100)} / 100
+                {/* {Math.round(sentiment.confidence * 100)}%) */}
               </span>
             </div>
             <div className="w-full bg-muted h-2 rounded-full overflow-hidden">

@@ -96,9 +96,9 @@ export function PieChart({slices}: {slices: PieSlice[]}) {
             <span className="text-sm font-bold" style={{color: sl.color}}>
               {sl.count}
             </span>
-            <span className="text-xs text-muted-foreground">
+            {/* <span className="text-xs text-muted-foreground">
               {total > 0 ? `${Math.round((sl.count / total) * 100)}%` : "—"}
-            </span>
+            </span> */}
           </div>
         ))}
       </div>
