@@ -26,7 +26,7 @@ export function EvidenceCard({positiveSignals, claims}: Props) {
       </CardHeader>
       <CardContent className="space-y-4">
         {positiveSignals.length === 0 ? (
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-gray-900 dark:text-white">
             No positive signals detected.
           </div>
         ) : (
@@ -41,7 +41,7 @@ export function EvidenceCard({positiveSignals, claims}: Props) {
                     {s.signal}
                   </Badge>
                 </div>
-                <div className="mt-2 text-sm text-muted-foreground bg-green-50/30 p-2 rounded">
+                <div className="mt-2 text-sm text-gray-900 dark:text-white bg-green-50/30 p-2 rounded">
                   {s.evidence}
                 </div>
               </div>
@@ -50,7 +50,9 @@ export function EvidenceCard({positiveSignals, claims}: Props) {
         )}
         {claims && claims.length > 0 && (
           <div>
-            <h4 className="font-medium mb-2">Claims</h4>
+            <h4 className="font-bold text-gray-900 dark:text-white mb-2">
+              Claims
+            </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {claims.map((c, idx) => (
                 <div
@@ -74,8 +76,12 @@ export function EvidenceCard({positiveSignals, claims}: Props) {
                       {c.significance}
                     </Badge>
                   </div>
-                  <p className="text-sm font-medium">{c.claim}</p>
-                  <p className="text-xs text-muted-foreground">{c.evidence}</p>
+                  <p className="text-sm font-bold text-gray-900 dark:text-white">
+                    {c.claim}
+                  </p>
+                  <p className="text-xs text-gray-700 dark:text-gray-300">
+                    {c.evidence}
+                  </p>
                 </div>
               ))}
             </div>

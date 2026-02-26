@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import {useEffect, useState} from "react";
+import {toast} from "sonner";
 import {
   type Article,
   type ArticleSummary,
@@ -17,8 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import {Button} from "@/components/ui/button";
+import {Badge} from "@/components/ui/badge";
 import AnalysisResultComponent from "@/components/AnalysisResult";
 
 export default function AnalysisForm() {
@@ -60,7 +60,7 @@ export default function AnalysisForm() {
     try {
       const data = await analyseArticle(selectedId);
       setResult(data);
-      toast.success("Analysis complete", { id: toastId });
+      toast.success("Analysis complete", {id: toastId});
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Analysis failed.", {
         id: toastId,
@@ -76,21 +76,17 @@ export default function AnalysisForm() {
         e.preventDefault();
         handleAnalyse();
       }}
-      className="space-y-8"
     >
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-4 pb-4 border-b border-slate-200">
+      <div className="flex items-center justify-between gap-4 pb-4 mb-6 border-b border-slate-200">
         <Select onValueChange={handleSelect} value={selectedId}>
-          <SelectTrigger className="w-64 bg-white border-slate-200 text-sm">
+          <SelectTrigger className="w-64">
             <SelectValue placeholder="Select a subject..." />
           </SelectTrigger>
           <SelectContent>
             {subjects.map((s) => (
               <SelectItem key={s.id} value={s.id}>
-                <span className="font-medium">{s.subject_name}</span>
-                <span className="ml-2 text-xs text-muted-foreground capitalize">
-                  · {s.subject_type}
-                </span>
+                {s.subject_name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -112,79 +108,93 @@ export default function AnalysisForm() {
         </Button>
       </div>
 
-      {/* Loading skeleton */}
-      {loadingArticle && (
-        <div className="space-y-4 animate-pulse">
-          <div className="h-3 bg-slate-100 rounded w-24" />
-          <div className="h-7 bg-slate-100 rounded w-3/4" />
-          <div className="h-7 bg-slate-100 rounded w-1/2" />
-          <div className="h-3 bg-slate-100 rounded w-32 mt-1" />
-          <div className="space-y-2 pt-4">
-            {[...Array(5)].map((_, i) => (
-              <div
-                key={i}
-                className="h-3 bg-slate-100 rounded"
-                style={{ width: `${85 + Math.random() * 15}%` }}
-              />
-            ))}
-          </div>
+      {/* Two-column layout when result is present */}
+      <div
+        className={
+          result ? "grid grid-cols-1 lg:grid-cols-2 gap-12 items-start" : ""
+        }
+      >
+        {/* Left column: article */}
+        <div className={!result ? "max-w-2xl mx-auto" : ""}>
+          {/* Loading skeleton */}
+          {loadingArticle && (
+            <div className="space-y-4 animate-pulse">
+              <div className="h-3 bg-slate-100 rounded w-24" />
+              <div className="h-7 bg-slate-100 rounded w-3/4" />
+              <div className="h-7 bg-slate-100 rounded w-1/2" />
+              <div className="h-3 bg-slate-100 rounded w-32 mt-1" />
+              <div className="space-y-2 pt-4">
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-3 bg-slate-100 rounded"
+                    style={{width: `${85 + Math.random() * 15}%`}}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Article */}
+          {article && (
+            <article>
+              {/* Source label */}
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs font-semibold uppercase tracking-widest text-blue-600">
+                  {article.source}
+                </span>
+                <span className="text-slate-200">·</span>
+                <Badge
+                  variant="secondary"
+                  className="capitalize text-xs bg-slate-100 text-slate-500 border-0 font-normal"
+                >
+                  {article.subject_type}
+                </Badge>
+              </div>
+
+              {/* Headline */}
+              <h2 className="text-2xl font-bold text-slate-900 leading-tight tracking-tight mb-3">
+                {article.title}
+              </h2>
+
+              {/* Byline */}
+              <div className="flex items-center gap-1 text-xs text-slate-400 mb-6 pb-6 border-b border-slate-100">
+                <span>By</span>
+                <span className="font-medium text-slate-600">
+                  {article.author}
+                </span>
+                <span className="text-slate-200 mx-1">·</span>
+                <span>{article.published_date}</span>
+                <span className="text-slate-200 mx-1">·</span>
+                <span>
+                  {article.content.split(" ").length.toLocaleString()} words
+                </span>
+              </div>
+
+              {/* Body */}
+              <div className="space-y-5">
+                {article.content.split("\n\n").map((para, i) => (
+                  <p
+                    key={i}
+                    className="text-[15px] text-slate-700 leading-[1.8] font-serif"
+                  >
+                    {para}
+                  </p>
+                ))}
+              </div>
+            </article>
+          )}
         </div>
-      )}
+        {/* end left column */}
 
-      {/* Article */}
-      {article && (
-        <article>
-          {/* Source label */}
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xs font-semibold uppercase tracking-widest text-blue-600">
-              {article.source}
-            </span>
-            <span className="text-slate-200">·</span>
-            <Badge
-              variant="secondary"
-              className="capitalize text-xs bg-slate-100 text-slate-500 border-0 font-normal"
-            >
-              {article.subject_type}
-            </Badge>
+        {/* Right column: analysis result */}
+        {result && (
+          <div className="sticky top-6 overflow-y-auto max-h-screen">
+            <AnalysisResultComponent result={result} />
           </div>
-
-          {/* Headline */}
-          <h2 className="text-2xl font-bold text-slate-900 leading-tight tracking-tight mb-3">
-            {article.title}
-          </h2>
-
-          {/* Byline */}
-          <div className="flex items-center gap-1 text-xs text-slate-400 mb-6 pb-6 border-b border-slate-100">
-            <span>By</span>
-            <span className="font-medium text-slate-600">{article.author}</span>
-            <span className="text-slate-200 mx-1">·</span>
-            <span>{article.published_date}</span>
-            <span className="text-slate-200 mx-1">·</span>
-            <span>
-              {article.content.split(" ").length.toLocaleString()} words
-            </span>
-          </div>
-
-          {/* Body */}
-          <div className="space-y-5">
-            {article.content.split("\n\n").map((para, i) => (
-              <p
-                key={i}
-                className="text-[15px] text-slate-700 leading-[1.8] font-serif"
-              >
-                {para}
-              </p>
-            ))}
-          </div>
-        </article>
-      )}
-
-      {/* Analysis result — candidate implements AnalysisResult.tsx */}
-      {result && (
-        <div className="pt-6 border-t border-slate-200">
-          <AnalysisResultComponent result={result} />
-        </div>
-      )}
+        )}
+      </div>
+      {/* end grid */}
     </form>
   );
 }

@@ -1,7 +1,13 @@
 "use client";
 
 import type {ReputationSignal} from "@/lib/api";
-import {Card, CardHeader, CardTitle, CardDescription, CardContent} from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 import {Badge} from "@/components/ui/badge";
 
 interface Props {
@@ -17,7 +23,7 @@ export default function RiskCard({signals}: Props) {
       </CardHeader>
       <CardContent>
         {signals.length === 0 ? (
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-gray-900 dark:text-white">
             No negative signals detected.
           </div>
         ) : (

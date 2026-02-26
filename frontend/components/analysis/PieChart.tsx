@@ -42,6 +42,13 @@ export function PieChart({slices}: {slices: PieSlice[]}) {
       <svg viewBox="0 0 180 180" className="w-full max-w-[180px] shrink-0">
         {total === 0 ? (
           <circle cx={cx} cy={cy} r={r} fill="#f3f4f6" />
+        ) : paths.length === 1 ? (
+          // Single slice covering 100% — SVG arcs can't represent a full circle,
+          // so draw a solid donut ring directly
+          <>
+            <circle cx={cx} cy={cy} r={r} fill={paths[0].color} />
+            <circle cx={cx} cy={cy} r={innerR} fill="white" />
+          </>
         ) : (
           paths.map((p, i) => (
             <path

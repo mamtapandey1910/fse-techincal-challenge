@@ -19,7 +19,9 @@ export function EmotionCard({sentiment, sentiment_breakdown}: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Emotion</CardTitle>
+        <CardTitle className="text-xl text-black dark:text-white font-bold">
+          Emotion
+        </CardTitle>
         <CardDescription className="flex items-center gap-3">
           <Badge
             variant={
@@ -37,27 +39,73 @@ export function EmotionCard({sentiment, sentiment_breakdown}: Props) {
           >
             {sentiment.label}
           </Badge>
-          <span className="text-sm">Score: {sentiment.score}</span>
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
-          <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+        <div className="space-y-4">
+          {/* Sentiment score bar — spectrum -1 to +1 */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-sm">
+              <span className="font-bold text-black dark:text-white">
+                Sentiment score
+              </span>
+              <span className="text-gray-900 dark:text-white">
+                {sentiment.score >= 0 ? "+" : ""}
+                {sentiment.score.toFixed(2)}
+              </span>
+            </div>
+            {/* Fixed spectrum: red | neutral | green, with a thumb marker */}
             <div
-              className={`h-2 rounded-full ${sentiment.label === "positive" ? "bg-green-500" : sentiment.label === "negative" ? "bg-red-500" : "bg-yellow-400"}`}
+              className="relative w-full h-3 rounded-full overflow-visible"
               style={{
-                width: `${Math.min(100, Math.round(Math.abs(sentiment.score) * 100))}%`,
+                background:
+                  "linear-gradient(to right, #ef4444 0%, #f59e0b 50%, #22c55e 100%)",
               }}
-            />
+            >
+              {/* thumb */}
+              <div
+                className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 border-white bg-white shadow"
+                style={{
+                  left: `calc(${((sentiment.score + 1) / 2) * 100}% - 6px)`,
+                }}
+              />
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-red-500 font-semibold">-1 Negative</span>
+              <span className="text-gray-700 dark:text-gray-300 font-semibold">
+                0 Neutral
+              </span>
+              <span className="text-green-600 font-semibold">+1 Positive</span>
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Confidence: {Math.round(sentiment.confidence * 100)}%
-          </p>
+
+          {/* Confidence bar */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-sm">
+              <span className="font-bold text-black dark:text-white">
+                Confidence
+              </span>
+              <span className="text-gray-900 dark:text-white">
+                {Math.round(sentiment.confidence * 100)} / 100 (
+                {Math.round(sentiment.confidence * 100)}%)
+              </span>
+            </div>
+            <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+              <div
+                className="h-2 rounded-full bg-blue-500"
+                style={{width: `${Math.round(sentiment.confidence * 100)}%`}}
+              />
+            </div>
+          </div>
+
           {sentiment_breakdown && (
-            <div className="mt-3 flex flex-wrap gap-2">
+            <div className="mt-1 flex flex-wrap gap-2">
               {Object.entries(sentiment_breakdown).map(([k, v]) => (
-                <div key={k} className="text-xs bg-muted px-2 py-1 rounded">
-                  <span className="font-medium capitalize">{k}</span>:{" "}
+                <div
+                  key={k}
+                  className="text-xs bg-muted px-2 py-1 rounded text-gray-900 dark:text-white"
+                >
+                  <span className="font-bold capitalize">{k}</span>:{" "}
                   {Math.round((v as number) * 100)}%
                 </div>
               ))}
